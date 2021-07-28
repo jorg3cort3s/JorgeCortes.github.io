@@ -72,7 +72,7 @@ GROUP BY location
 ORDER BY TotalDeathCount DESC;
 
 
---Let's break things down by continent (thinking ahead, this will help visulize in Tableau, professor believes these are not accurate, he tried this but did not look right)
+--Let's break things down by continent (thinking ahead, this will help visualize in Tableau, professor believes these are not accurate, he tried this but did not look right)
 SELECT continent, MAX(cast(total_deaths AS INT)) AS TotalDeathCount
 FROM `covid-320809.covid_project.coviddeaths`
 --WHERE location LIKE '%State%'
