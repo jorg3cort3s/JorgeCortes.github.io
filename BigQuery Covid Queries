@@ -58,7 +58,7 @@ FROM `covid-320809.covid_project.coviddeaths`
 GROUP BY location
 ORDER BY TotalDeathCount DESC;
 
---Professorn noticed grouped by continent (will fix above as will)
+--Professor noticed grouped by continent (will fix above as will)
 SELECT * FROM `covid-320809.covid_project.coviddeaths`
 WHERE continent is not null
 ORDER BY 3, 4;
