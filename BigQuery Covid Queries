@@ -1,0 +1,206 @@
+SELECT * FROM `covid-320809.covid_project.coviddeaths`
+WHERE continent is not null
+ORDER BY 3, 4;
+
+
+--select data we'll be using
+
+SELECT location, date, total_cases, new_cases, total_deaths, population
+FROM `covid-320809.covid_project.coviddeaths`
+WHERE continent is not null
+ORDER BY 1, 2;
+
+--looking at Total cases vs Total deaths
+--shows likekihood of dying if you contact covid in your country 
+SELECT location, date, total_cases, total_deaths, (total_deaths/total_cases) * 100 AS DeathPercentage
+FROM `covid-320809.covid_project.coviddeaths`
+WHERE location LIKE '%State%'
+ORDER BY 1, 2;
+
+--total cases vs the population
+--shows the percentage of population that got covid 
+SELECT location, date, population, total_cases, (total_cases/population) * 100 AS PercentOfPopulationInfected
+FROM `covid-320809.covid_project.coviddeaths`
+WHERE location LIKE '%State%'
+ORDER BY 1, 2;
+
+--looking at countries with highest infection rate compared to population (US Specific)
+SELECT location, population, MAX(total_cases) AS HighestInfectionCount, MAX((total_cases/population)) * 100 AS PercentOfPopulationInfected
+FROM `covid-320809.covid_project.coviddeaths`
+WHERE location LIKE '%State%'
+GROUP BY location, population
+ORDER BY 1, 2;
+
+--looking at countries with highest infection rate compared to population
+SELECT location, population, MAX(total_cases) AS HighestInfectionCount, MAX((total_cases/population)) * 100 AS PercentOfPopulationInfected
+FROM `covid-320809.covid_project.coviddeaths`
+--WHERE location LIKE '%State%'
+GROUP BY location, population
+ORDER BY 1, 2;
+
+SELECT location, population, MAX(total_cases) AS HighestInfectionCount, MAX((total_cases/population)) * 100 AS PercentOfPopulationInfected
+FROM `covid-320809.covid_project.coviddeaths`
+--WHERE location LIKE '%State%'
+GROUP BY location, population
+ORDER BY PercentOfPopulationInfected DESC;
+
+--showing countries with highest death count per population (datatype may not allow to see info. correctly, ALTOUGH SEEMS TO BE FOR PREFESSOR NOT ME)
+SELECT location, MAX(total_deaths) AS TotalDeathCount
+FROM `covid-320809.covid_project.coviddeaths`
+--WHERE location LIKE '%State%'
+GROUP BY location
+ORDER BY TotalDeathCount DESC;
+
+--showing countries with highest death count per population (did prefessor's update anyways, same result which is correct for me. good job google, this ends up being correct)
+SELECT location, MAX(cast(total_deaths AS INT)) AS TotalDeathCount
+FROM `covid-320809.covid_project.coviddeaths`
+--WHERE location LIKE '%State%'
+GROUP BY location
+ORDER BY TotalDeathCount DESC;
+
+--Professorn noticed grouped by continent (will fix above as will)
+SELECT * FROM `covid-320809.covid_project.coviddeaths`
+WHERE continent is not null
+ORDER BY 3, 4;
+
+--showing countries with highest death count per population (did prefessor's update anyways, same result which is correct for me. good job google)
+SELECT location, MAX(cast(total_deaths AS INT)) AS TotalDeathCount
+FROM `covid-320809.covid_project.coviddeaths`
+--WHERE location LIKE '%State%'
+WHERE continent is not null
+GROUP BY location
+ORDER BY TotalDeathCount DESC;
+
+
+--Let's break things down by continent (thinking ahead, this will help visulize in Tableau, professor believes these are not accurate, he tried this but did not look right)
+SELECT continent, MAX(cast(total_deaths AS INT)) AS TotalDeathCount
+FROM `covid-320809.covid_project.coviddeaths`
+--WHERE location LIKE '%State%'
+WHERE continent is not null
+GROUP BY continent
+ORDER BY TotalDeathCount DESC;
+
+
+
+--Right way (professor figured this out mid vid) Since it did work for me, ill use simpler one (I'll include comment)
+--showing countries with highest death count per population (datatype may not allow to see info. correctly, ALTOUGH SEEMS TO BE FOR PREFESSOR NOT ME)
+SELECT location, MAX(total_deaths) AS TotalDeathCount
+FROM `covid-320809.covid_project.coviddeaths`
+--WHERE location LIKE '%State%'
+WHERE continent is null
+GROUP BY location
+ORDER BY TotalDeathCount DESC;
+
+--What he decided to use for video
+SELECT continent, MAX(cast(total_deaths AS INT)) AS TotalDeathCount
+FROM `covid-320809.covid_project.coviddeaths`
+--WHERE location LIKE '%State%'
+WHERE continent is not null
+GROUP BY continent
+ORDER BY TotalDeathCount DESC;
+
+--Showing continents with the highest death count per population 
+SELECT continent, MAX(cast(total_deaths AS INT)) AS TotalDeathCount
+FROM `covid-320809.covid_project.coviddeaths`
+--WHERE location LIKE '%State%'
+WHERE continent is not null
+GROUP BY continent
+ORDER BY TotalDeathCount DESC;
+
+--Showing continents with the highest death count per population (bigquery reconized total_deaths as INT, no need for cast)
+SELECT continent, MAX(total_deaths) AS TotalDeathCount
+FROM `covid-320809.covid_project.coviddeaths`
+--WHERE location LIKE '%State%'
+WHERE continent is not null
+GROUP BY continent
+ORDER BY TotalDeathCount DESC;
+
+--GLOBAL NUMBERS (Infected by day)
+SELECT date, SUM(new_cases) AS TotalNewCases, SUM(new_deaths) AS TotalNewDeaths, SUM(new_deaths)/SUM(new_cases)*100 AS DeathPercentage
+FROM `covid-320809.covid_project.coviddeaths`
+WHERE continent is not null
+GROUP BY date
+ORDER BY 1, 2;
+
+--GLOBAL NUMBERS (got rid of date)
+SELECT SUM(new_cases) AS TotalNewCases, SUM(new_deaths) AS TotalNewDeaths, SUM(new_deaths)/SUM(new_cases)*100 AS DeathPercentage
+FROM `covid-320809.covid_project.coviddeaths`
+WHERE continent is not null
+--GROUP BY date
+ORDER BY 1, 2;
+
+
+--Looking at total population vs vaccination 
+SELECT dea.continent, dea.location, dea.date, dea.population, vac.new_vaccinations
+FROM `covid-320809.covid_project.coviddeaths` dea
+JOIN `covid-320809.covid_project.covidvaccinations` vac
+ON dea.location = vac.location 
+AND dea.date = vac.date
+WHERE dea.continent is not null
+ORDER BY 2, 3;
+
+--Looking at total population vs vaccination 
+SELECT dea.continent, dea.location, dea.date, dea.population, vac.new_vaccinations, SUM(vac.new_vaccinations) OVER (PARTITION BY dea.location)
+FROM `covid-320809.covid_project.coviddeaths` dea
+JOIN `covid-320809.covid_project.covidvaccinations` vac
+ON dea.location = vac.location 
+AND dea.date = vac.date
+WHERE dea.continent is not null
+ORDER BY 2, 3;
+
+
+--Looking at total population vs vaccination 
+SELECT dea.continent, dea.location, dea.date, dea.population, vac.new_vaccinations, 
+SUM(vac.new_vaccinations) OVER (PARTITION BY dea.location ORDER BY dea.location, dea.date) AS RollingPeopleVaccinated
+--, (RollingPeopleVaccinated/population)*100   (Professor offered 2 options to do this) [1:02:00]
+FROM `covid-320809.covid_project.coviddeaths` dea
+JOIN `covid-320809.covid_project.covidvaccinations` vac
+ON dea.location = vac.location 
+AND dea.date = vac.date
+WHERE dea.continent is not null
+ORDER BY 2, 3;
+
+--USE CTE
+--WITH PopvsVac (continent, location, date, population, RollingPeopleVaccinated) AS ()
+
+
+--Looking at total population vs vaccination 
+WITH PopvsVac --(Continent, Location, Date, Population, New_vaccinations, RollingPeopleVaccinated) [professor used this line but gave error, removed and it worked] 
+AS
+(SELECT dea.continent, dea.location, dea.date, dea.population, vac.new_vaccinations, 
+SUM(vac.new_vaccinations) OVER (PARTITION BY dea.location ORDER BY dea.location, dea.date) AS RollingPeopleVaccinated
+--, (RollingPeopleVaccinated/population)*100   --(Professor offered 2 options to do this) [1:02:00]
+FROM `covid-320809.covid_project.coviddeaths` dea
+JOIN `covid-320809.covid_project.covidvaccinations` vac
+ON dea.location = vac.location 
+AND dea.date = vac.date
+WHERE dea.continent is not null
+--ORDER BY 2, 3;
+)
+select *, (RollingPeopleVaccinated/population)*100 as PercentPopulationVaccinated
+from PopvsVac;
+
+--Temp table
+
+--DROP TABLE PercentPopulationVaccinated;
+--CREATE TABLE PercentPopulationVaccinated (
+ --   continent STRING(30),
+ --   location STRING(30),
+ --   date date,
+ --   population NUMERIC,
+ --   new_vaccinations NUMBERIC,
+ --   RollingPeopleVaccinated NUMBERIC
+--);
+
+
+SELECT dea.continent, dea.location, dea.date, dea.population, vac.new_vaccinations, 
+SUM(vac.new_vaccinations) OVER (PARTITION BY dea.location ORDER BY dea.location, dea.date) AS RollingPeopleVaccinated
+--, (RollingPeopleVaccinated/population)*100   --(Professor offered 2 options to do this) [1:02:00]
+FROM `covid-320809.covid_project.coviddeaths` dea
+JOIN `covid-320809.covid_project.covidvaccinations` vac
+ON dea.location = vac.location 
+AND dea.date = vac.date
+WHERE dea.continent is not null;
+--ORDER BY 2, 3;
+
+
