@@ -1,3 +1,6 @@
+-- Data set avaible at:
+-- https://ourworldindata.org/covid-deaths
+
 SELECT * FROM `covid-320809.covid_project.coviddeaths`
 WHERE continent is not null
 ORDER BY 3, 4;
