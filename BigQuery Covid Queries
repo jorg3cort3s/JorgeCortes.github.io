@@ -1,4 +1,4 @@
--- Dataset avaible at:
+-- Dataset available at:
 -- https://ourworldindata.org/covid-deaths
 
 SELECT * FROM `covid-320809.covid_project.coviddeaths`
